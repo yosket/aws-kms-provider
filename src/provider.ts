@@ -16,10 +16,12 @@ import {
 
 import { KmsSigner } from "./signer/kms-signer";
 import { Ethereum } from "./ethereum";
+import { EthereumBrowser } from "./ethereum-browser";
 
 export interface KmsOptions {
   region: string;
   keyIds: string[];
+  isBrowser: boolean;
 }
 
 export type Network = "mainnet" | "ropsten" | "rinkeby" | "kovan";
@@ -34,7 +36,7 @@ export class KmsProvider implements Provider {
   private readonly signers: KmsSigner[];
   private cacheAccounts: string[] = [];
   private readonly networkOrNetworkOptions?: Network | NetworkOptions;
-  private ethereum: Ethereum;
+  private ethereum: Ethereum | EthereumBrowser;
 
   public constructor(
     endpoint: string,
@@ -46,7 +48,7 @@ export class KmsProvider implements Provider {
       (keyId) => new KmsSigner(kmsOptions.region, keyId)
     );
     this.networkOrNetworkOptions = networkOrNetworkOptions;
-    this.ethereum = new Ethereum(endpoint);
+    this.ethereum = kmsOptions.isBrowser ? new EthereumBrowser(endpoint) : new Ethereum(endpoint);
 
     this.engine.addProvider(
       new HookedSubprovider({
