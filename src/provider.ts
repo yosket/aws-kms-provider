@@ -21,7 +21,13 @@ import { EthereumBrowser } from "./ethereum-browser";
 export interface KmsOptions {
   region: string;
   keyIds: string[];
+  credential?: AwsCredential;
   isBrowser: boolean;
+}
+
+export interface AwsCredential {
+  accessKeyId: string;
+  secretAccessKey: string;
 }
 
 export type Network = "mainnet" | "ropsten" | "rinkeby" | "kovan";
@@ -45,7 +51,7 @@ export class KmsProvider implements Provider {
   ) {
     this.engine = new ProviderEngine();
     this.signers = kmsOptions.keyIds.map(
-      (keyId) => new KmsSigner(kmsOptions.region, keyId)
+      (keyId) => new KmsSigner(kmsOptions.region, keyId, kmsOptions.credential)
     );
     this.networkOrNetworkOptions = networkOrNetworkOptions;
     this.ethereum = kmsOptions.isBrowser ? new EthereumBrowser(endpoint) : new Ethereum(endpoint);
